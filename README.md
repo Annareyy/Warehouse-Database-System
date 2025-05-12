@@ -1,56 +1,63 @@
 # Warehouse-Database-System
-# 📦 Warehouse Management System (MySQL Project)
+# 📦 Warehouse Management System (WMS) - MySQL Project
 
-## 📌 Project Title
+## 📖 Project Description
 
-**Warehouse Management System for a Single Warehouse**
+This project is a **relational database** designed for a **warehouse management system** for a large-scale company using **MySQL**. It covers essential warehouse operations such as inventory control, supplier and customer tracking, order management (purchasing and dispatch), and staff allocation.
 
----
-
-## 🧾 Description
-
-This project demonstrates the creation of a relational database using **MySQL** to manage a centralized warehouse for a large organization. The database covers essential functions such as:
-
-- Product management  
-- Inventory tracking  
-- Supplier and unit definitions  
-- Purchase and dispatch workflows  
-- Reorder level monitoring  
-
-It uses relational constraints such as `PRIMARY KEY`, `FOREIGN KEY`, `NOT NULL`, and `UNIQUE`, and models different relationship types (`1-1`, `1-M`, `M-M`).
+It includes proper **primary keys**, **foreign keys**, **data constraints**, and models **one-to-many** and **many-to-many relationships** with the appropriate junction tables.
 
 ---
 
-## 🎯 Objective
+## 🧱 Key Features
 
-- Build a complete, structured relational database using MySQL.
-- Implement and enforce relational integrity constraints.
-- Simulate a real-world warehouse environment for a **single location**.
-- Test the schema with valid data inserts and queries.
-- Provide a well-documented `.sql` file and ERD.
-
----
-
-## 🛠️ Tech Stack
-
-- **Database:** MySQL
-- **Tools:** MySQL Workbench, CLI, phpMyAdmin
-- **File:** `warehouse_management.sql`
+- ✅ Single warehouse support
+- ✅ Inventory management with product categorization
+- ✅ Purchase orders from suppliers
+- ✅ Dispatch orders to customers
+- ✅ Employee roles and department allocation
+- ✅ Tracking deliveries and dispatches using junction tables
+- ✅ Well-normalized structure with referential integrity
 
 ---
 
-## 🗃️ Database Tables Overview
+## 🗂️ Database Structure Overview
 
-| Table                  | Purpose |
-|------------------------|---------|
-| `products`             | Stores products with SKUs, descriptions, and reorder levels |
-| `categories`           | Stores product categories |
-| `units`                | Stores measurement units (e.g., pieces, boxes) |
-| `suppliers`            | Stores supplier contact details |
-| `inventory`            | Tracks stock levels of each product |
-| `purchase_orders`      | Logs purchase orders |
-| `purchase_order_items` | Details of items in each purchase order |
-| `dispatch_orders`      | Logs outbound shipments |
-| `dispatch_order_items` | Details of items in each dispatch |
+### Core Tables
+- `products`: Stores product details
+- `categories`: Groups products into types
+- `suppliers`: Contains vendor info
+- `customers`: Contains client info
+- `purchase_orders`: Tracks products ordered from suppliers
+- `dispatch_orders`: Tracks products sent to customers
+- `employees`: Employee details
+- `departments`: Employee department categorization
+- `roles`: Role definition for each employee
+- `units`: Units of measurement for products
 
----To run the database make sure you have mysql or phpmyadmin then you can clone the repository-
+### Junction Tables
+- `purchase_order_items`: M:N between purchase_orders and products
+- `dispatch_order_items`: M:N between dispatch_orders and products
+
+---
+
+## 🔗 Relationships
+
+| Relationship                              | Type         | Mandatory/Optional |
+|------------------------------------------|--------------|---------------------|
+| products → categories                    | M:1          | Mandatory           |
+| products → suppliers                     | M:1          | Mandatory           |
+| products → units                         | M:1          | Mandatory           |
+| employees → departments                  | M:1          | Mandatory           |
+| employees → roles                        | M:1          | Mandatory           |
+| purchase_orders ↔ products               | M:N via `purchase_order_items` | Mandatory           |
+| dispatch_orders ↔ products               | M:N via `dispatch_order_items` | Mandatory           |
+
+---
+
+## 🚀 How to Run
+
+### Steps: Setup MySQL
+Ensure you have MySQL installed and running.
+
+--clone the repository-
