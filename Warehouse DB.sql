@@ -1,90 +1,114 @@
 -- warehouse_management database
-
 CREATE DATABASE IF NOT EXISTS warehouse_system;
 USE warehouse_system;
 
--- Table to store units of measurement (e.g., kg, box, piece)
 CREATE TABLE units (
-    unit_id INT AUTO_INCREMENT PRIMARY KEY,
-    unit_name VARCHAR(50) NOT NULL UNIQUE
+    unit_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL UNIQUE
 );
 
--- Table to store product categories
 CREATE TABLE categories (
-    category_id INT AUTO_INCREMENT PRIMARY KEY,
-    category_name VARCHAR(100) NOT NULL UNIQUE
+    category_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT
 );
 
--- Table to store suppliers
 CREATE TABLE suppliers (
-    supplier_id INT AUTO_INCREMENT PRIMARY KEY,
+    supplier_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE,
+    contact_person VARCHAR(100),
     phone VARCHAR(20),
+    email VARCHAR(100),
     address TEXT
 );
 
--- Table to store products in the warehouse
-CREATE TABLE products (
-    product_id INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE employees (
+    employee_id INT PRIMARY KEY AUTO_INCREMENT,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    role VARCHAR(50) NOT NULL,
+    phone VARCHAR(20),
+    email VARCHAR(100) UNIQUE
+);
+
+CREATE TABLE customers (
+    customer_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(100) NOT NULL,
-    sku VARCHAR(50) UNIQUE NOT NULL,
+    contact_person VARCHAR(100),
+    phone VARCHAR(20),
+    email VARCHAR(100) UNIQUE,
+    address TEXT
+);
+
+CREATE TABLE locations (
+    location_id INT PRIMARY KEY AUTO_INCREMENT,
+    location_code VARCHAR(50) UNIQUE NOT NULL,
+    description TEXT
+);
+
+CREATE TABLE products (
+    product_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
     description TEXT,
+    sku VARCHAR(50) NOT NULL UNIQUE,
     category_id INT,
     supplier_id INT,
     unit_id INT,
-    reorder_level INT DEFAULT 0,
+    reorder_level INT NOT NULL DEFAULT 1,
     FOREIGN KEY (category_id) REFERENCES categories(category_id),
     FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id),
     FOREIGN KEY (unit_id) REFERENCES units(unit_id)
 );
 
--- Table to track inventory of products (in a single warehouse)
 CREATE TABLE inventory (
-    inventory_id INT AUTO_INCREMENT PRIMARY KEY,
-    product_id INT NOT NULL,
-    quantity INT NOT NULL DEFAULT 0,
+    product_id INT PRIMARY KEY,
+    quantity_in_stock INT NOT NULL DEFAULT 0,
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    location_id INT,
     FOREIGN KEY (product_id) REFERENCES products(product_id),
-    UNIQUE(product_id)
+    FOREIGN KEY (location_id) REFERENCES locations(location_id)
 );
 
--- Table to record purchase orders (incoming stock)
+-- Purchase Orders placed to suppliers
 CREATE TABLE purchase_orders (
-    po_id INT AUTO_INCREMENT PRIMARY KEY,
+    po_id INT PRIMARY KEY AUTO_INCREMENT,
     supplier_id INT NOT NULL,
-    po_date DATE NOT NULL,
-    status ENUM('Pending', 'Received', 'Cancelled') DEFAULT 'Pending',
+    order_date DATE NOT NULL,
+    status VARCHAR(50) DEFAULT 'Pending',
     FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id)
 );
 
--- Table to record items in each purchase order
+-- Purchase Order Items
 CREATE TABLE purchase_order_items (
-    poi_id INT AUTO_INCREMENT PRIMARY KEY,
-    po_id INT NOT NULL,
-    product_id INT NOT NULL,
+    po_id INT,
+    product_id INT,
     quantity INT NOT NULL,
+    cost_per_unit DECIMAL(10,2),
+    PRIMARY KEY (po_id, product_id),
     FOREIGN KEY (po_id) REFERENCES purchase_orders(po_id),
     FOREIGN KEY (product_id) REFERENCES products(product_id)
 );
 
--- Table to record dispatch orders (stock going out)
+-- Dispatch Orders to customers
 CREATE TABLE dispatch_orders (
-    dispatch_id INT AUTO_INCREMENT PRIMARY KEY,
-    customer_name VARCHAR(100),
-    dispatch_date DATE,
-    status ENUM('Pending', 'Dispatched', 'Cancelled') DEFAULT 'Pending'
+    do_id INT PRIMARY KEY AUTO_INCREMENT,
+    dispatch_date DATE NOT NULL,
+    status VARCHAR(50) DEFAULT 'Pending',
+    customer_id INT,
+    handled_by INT,
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
+    FOREIGN KEY (handled_by) REFERENCES employees(employee_id)
 );
 
--- Table to record items in each dispatch order
+-- Dispatch Order Items
 CREATE TABLE dispatch_order_items (
-    doi_id INT AUTO_INCREMENT PRIMARY KEY,
-    dispatch_id INT NOT NULL,
-    product_id INT NOT NULL,
+    do_id INT,
+    product_id INT,
     quantity INT NOT NULL,
-    FOREIGN KEY (dispatch_id) REFERENCES dispatch_orders(dispatch_id),
+    PRIMARY KEY (do_id, product_id),
+    FOREIGN KEY (do_id) REFERENCES dispatch_orders(do_id),
     FOREIGN KEY (product_id) REFERENCES products(product_id)
 );
-
 -- Adding data to the database tables
 -- Insert categories
 INSERT INTO categories (category_id, category_name) VALUES 
